@@ -1,16 +1,19 @@
 import { Quiz } from "../models/quiz.model.js";
 import { Report } from "../models/studentReport.model.js";
 import { User } from "../models/user.model.js";
+import {Student} from "../models/student.model.js";
+import {Teacher} from "../models/teacher.model.js";
+import {School} from "../models/school.model.js";
 
 
 // Generate a Student Report (After Quiz Attempt)
 export const createStudentReport = async (req, res) => {
     try {
         const { quizId, score, totalQuestions, correctAnswers } = req.body;
-        const studentId = req.user.id;
+        const studentId = req.student.id;
 
         // Validate user is a student
-        const student = await User.findById(studentId);
+        const student = await Student.findById(studentId);
         if (!student || student.role !== "student") {
             return res.status(403).json({ message: "Only students can generate reports" });
         }
@@ -31,10 +34,10 @@ export const createStudentReport = async (req, res) => {
 };
 
 
-// Get All Reports (Only principal & Teachers)
+// Get All Reports (Only school & Teachers)
 export const getAllReports = async (req, res) => {
     try {
-        if (req.user.role !== "principal" && req.user.role !== "teacher") {
+        if (req.school.role !== "school" && req.teacher.role !== "teacher") {
             return res.status(403).json({ message: "Access denied" });
         }
 
@@ -49,10 +52,10 @@ export const getAllReports = async (req, res) => {
 // Get Reports for a Specific Student (Students Can See Their Own Reports)
 export const getStudentReports = async (req, res) => {
     try {
-        const studentId = req.user.id;
+        const studentId = req.student.id;
 
         // Check if the student exists
-        const student = await User.findById(studentId);
+        const student = await Student.findById(studentId);
         if (!student) {
             return res.status(404).json({ message: "Student not found" });
         }
@@ -72,7 +75,7 @@ export const getQuizReports = async (req, res) => {
 
        
 
-        if (req.user.role !== "principal" && req.user.role !== "teacher") {
+        if (req.school.role !== "school" && req.teacher.role !== "teacher") {
             return res.status(403).json({ message: "Access denied" });
         }
 
@@ -94,7 +97,7 @@ export const getReportById = async (req, res) => {
         }
 
         // Only the student who owns the report or an admin can view it
-        if (req.user.role !== "principal" && report.student.toString() !== req.user.id) {
+        if (req.school.role !== "school" && report.student.toString() !== req.student.id) {
             return res.status(403).json({ message: "Access denied" });
         }
 

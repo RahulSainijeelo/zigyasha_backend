@@ -3,7 +3,8 @@ import { Question } from "../models/question.model.js";
 import { Quiz } from "../models/quiz.model.js";
 import { Report } from "../models/studentReport.model.js";
 import { User } from "../models/user.model.js";
-
+import {Teacher} from "../models/teacher.model.js";
+import {Student} from "../models/student.model.js";
 // Create a new quiz--> Only teachers can create
 export const createQuiz = async (req, res) => {
     try {
@@ -11,12 +12,12 @@ export const createQuiz = async (req, res) => {
         
         const { title, subject } = req.body;
        
-        const teacherId = req.user.id;
+        const teacherId = req.teacher.id;
 
         console.log("Teacher ID:", teacherId);
 
         // Check if the user is a teacher
-        const teacher = await User.findById(teacherId);
+        const teacher = await Teacher.findById(teacherId);
         if (!teacher || teacher.role !== "teacher") {
             return res.status(403).json({ message: "Only teachers can create quizzes" });
         }
@@ -72,7 +73,7 @@ export const updateQuiz = async (req, res) => {
         }
 
         // Only the teacher who created the quiz can update it
-        if (quiz.teacher.toString() !== req.user.id) {
+        if (quiz.teacher.toString() !== req.teacher.id) {
             return res.status(403).json({ message: "Not authorized to update this quiz" });
         }
 
@@ -97,7 +98,7 @@ export const deleteQuiz = async (req, res) => {
         }
 
         // Only the teacher who created the quiz can delete it
-        if (quiz.teacher.toString() !== req.user.id) {
+        if (quiz.teacher.toString() !== req.teacher.id) {
             return res.status(403).json({ message: "Not authorized to delete this quiz" });
         }
 
@@ -120,7 +121,7 @@ export const addQuestions = async (req, res) => {
         }
 
         // Only the teacher who created the quiz can add questions
-        if (quiz.teacher.toString() !== req.user.id) {
+        if (quiz.teacher.toString() !== req.teacher.id) {
             return res.status(403).json({ message: "Not authorized to add questions" });
         }
 
@@ -144,7 +145,7 @@ export const attemptQuiz = async (req, res) => {
         
         const { quizId, answers } = req.body; // Answers is an array of { questionId, selectedOption }
         
-        const studentId = req.user.id;
+        const studentId = req.student.id;
 
         if (!quizId) {
             return res.status(400).json({ message: "Quiz ID is required" });
@@ -171,7 +172,7 @@ export const attemptQuiz = async (req, res) => {
         }
 
         // Ensure the user is a student
-        const student = await User.findById(studentId);
+        const student = await Student.findById(studentId);
         if (!student || student.role !== "student") {
             return res.status(403).json({ message: "Only students can attempt quizzes" });
         }

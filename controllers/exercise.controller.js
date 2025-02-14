@@ -3,6 +3,8 @@ import { Exercise } from "../models/exercise.model.js";
 import { Question } from "../models/question.model.js";
 import { Report } from "../models/studentReport.model.js";
 import { User } from "../models/user.model.js";
+import {Teacher} from "../models/teacher.model.js";
+import { Student } from "../models/student.model.js";
 
 // Create a new exercise--> Only teachers can create
 export const createExercise = async (req, res) => {
@@ -11,12 +13,12 @@ export const createExercise = async (req, res) => {
         
         const { title, subject } = req.body;
        
-        const teacherId = req.user.id;
+        const teacherId = req.teacher.id;
 
         console.log("Teacher ID:", teacherId);
 
         // Check if the user is a teacher
-        const teacher = await User.findById(teacherId);
+        const teacher = await Teacher.findById(teacherId);
         if (!teacher || teacher.role !== "teacher") {
             return res.status(403).json({ message: "Only teachers can create exercises" });
         }
@@ -72,7 +74,7 @@ export const updateExercise = async (req, res) => {
         }
 
         // Only the teacher who created the exercise can update it
-        if (exercise.teacher.toString() !== req.user.id) {
+        if (exercise.teacher.toString() !== req.teacher.id) {
             return res.status(403).json({ message: "Not authorized to update this exercise" });
         }
 
@@ -97,7 +99,7 @@ export const deleteExercise = async (req, res) => {
         }
 
         // Only the teacher who created the quiz can delete it
-        if (exercise.teacher.toString() !== req.user.id) {
+        if (exercise.teacher.toString() !== req.teacher.id) {
             return res.status(403).json({ message: "Not authorized to delete this exercise" });
         }
 
@@ -120,7 +122,7 @@ export const addQuestions = async (req, res) => {
         }
 
         // Only the teacher who created the exercise can add questions
-        if (exercise.teacher.toString() !== req.user.id) {
+        if (exercise.teacher.toString() !== req.teacher.id) {
             return res.status(403).json({ message: "Not authorized to add questions" });
         }
 
@@ -144,7 +146,7 @@ export const attemptExercise = async (req, res) => {
         
         const { exerciseId, answers } = req.body; // Answers is an array of { questionId, selectedOption }
         
-        const studentId = req.user.id;
+        const studentId = req.student.id;
 
         if (!exerciseId) {
             return res.status(400).json({ message: "Exercise ID is required" });
@@ -171,7 +173,7 @@ export const attemptExercise = async (req, res) => {
         }
 
         // Ensure the user is a student
-        const student = await User.findById(studentId);
+        const student = await Student.findById(studentId);
         if (!student || student.role !== "student") {
             return res.status(403).json({ message: "Only students can attempt exercises" });
         }

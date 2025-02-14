@@ -10,7 +10,7 @@ const quizSchema = new mongoose.Schema({
         required: true
     },
     teacher: {
-        type: mongoose.Schema.Types.ObjectId, ref: "User"
+        type: mongoose.Schema.Types.ObjectId, ref: "Teacher"
     }, // Created by a teacher
     questions: [{
         type: mongoose.Schema.Types.ObjectId, ref: "Question"

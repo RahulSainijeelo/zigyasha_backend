@@ -5,7 +5,7 @@ import { Question } from "../models/question.model.js";
 export const createQuestion = async (req, res) => {
     try {
         const { exerciseId, questionText, options, correctAnswer } = req.body;
-        const teacherId = req.user.id;
+        const teacherId = req.teacher.id;
 
         // Check if exercise exists
         const exercise = await Exercise.findById(exerciseId);
@@ -73,7 +73,7 @@ export const updateQuestion = async (req, res) => {
         }
 
         const exercise = await Exercise.findById(question.exercise);
-        if (exercise.teacher.toString() !== req.user.id) {
+        if (exercise.teacher.toString() !== req.teacher.id) {
             return res.status(403).json({ message: "Only the exercise creator can update questions" });
         }
 
@@ -99,7 +99,7 @@ export const deleteQuestion = async (req, res) => {
         }
 
         const exercise = await Exercise.findById(question.exercise);
-        if (exercise.teacher.toString() !== req.user.id) {
+        if (exercise.teacher.toString() !== req.teacher.id) {
             return res.status(403).json({ message: "Only the exercise creator can delete questions" });
         }
 
